@@ -10,22 +10,37 @@ namespace AssetTrackerApp
     {
         static void Main(string[] args)
         {
-            // Initialize currency data
-            CurrencyConverter.Update();
+            // Attempt to fetch currency rates
+            try
+            {
+                var latestRates = CurrencyConverter.UpdateRates();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("✅ Currency rates successfully updated.");
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("❌ Failed to update currency rates:");
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.ResetColor();
+            }
 
             // Create offices
             var usa = new Office("USA", Currency.USD);
             var sweden = new Office("Sweden", Currency.SEK);
             var germany = new Office("Germany", Currency.EUR);
 
-            // Initialize tracker
-            var tracker = new AssetTrackerService();
+            // Initialize asses epository
+            var assetRepository = new AssetRepository();
 
             // Load sample data
-            SeedData.AddDefaultAssets(tracker, usa, sweden, germany);
+            SeedData.AddDefaultAssets(assetRepository, usa, sweden, germany);
 
             // Start the console menu
-            Menu.Start(tracker);
+            Menu.Start(assetRepository);
         }
     }
 }

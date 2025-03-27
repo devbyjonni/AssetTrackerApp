@@ -3,9 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AssetTrackerApp.Services
+namespace AssetTrackerApp.Data
 {
-    public class AssetTrackerService
+    /// The AssetRepository class is responsible for storing and retrieving asset data.
+    /// It acts as an in-memory data layer, providing basic operations such as adding and
+    /// retrieving assets, as well as sorted views based on asset type or office location.
+    public class AssetRepository
     {
         private readonly List<Asset> _assets = new();
 

@@ -4,7 +4,7 @@ using System;
 
 namespace AssetTrackerApp.ConsoleUI
 {
-    public static class Formatter
+    public static class ConsoleFormatter
     {
         private const int LifeSpanInMonths = 36;
 

@@ -4,31 +4,44 @@ using System.Xml.Serialization;
 
 namespace AssetTrackerApp.Services.ECB
 {
+    /// <summary>
+    /// Root element of the ECB exchange rate XML.
+    /// Contains the main currency rate container.
+    /// </summary>
     [XmlRoot(ElementName = "Envelope", Namespace = "http://www.gesmes.org/xml/2002-08-01")]
     public class Envelope
     {
         [XmlElement(ElementName = "Cube", Namespace = "http://www.ecb.int/vocabulary/2002-08-01/eurofxref")]
-        public OuterCube Cube { get; set; } = new OuterCube();
+        public CubeContainer CubeContainer { get; set; } = new CubeContainer();
     }
 
-    public class OuterCube
+    /// <summary>
+    /// Wraps the time-specific currency data container.
+    /// </summary>
+    public class CubeContainer
     {
         [XmlElement(ElementName = "Cube")]
-        public InnerCube Cube1 { get; set; } = new InnerCube();
+        public CubeDataSet CubeDataSet { get; set; } = new CubeDataSet();
     }
 
-    public class InnerCube
+    /// <summary>
+    /// Contains the actual currency exchange rates as a list of Cube entries.
+    /// </summary>
+    public class CubeDataSet
     {
         [XmlElement(ElementName = "Cube")]
-        public List<CurrencyCube> Cube { get; set; } = new List<CurrencyCube>();
+        public List<CurrencyRate> Rates { get; set; } = new List<CurrencyRate>();
     }
 
-    public class CurrencyCube
+    /// <summary>
+    /// Represents a single currency and its exchange rate.
+    /// </summary>
+    public class CurrencyRate
     {
         [XmlAttribute(AttributeName = "currency")]
-        public string currency { get; set; }
+        public string CurrencyCode { get; set; } = null!;
 
         [XmlAttribute(AttributeName = "rate")]
-        public decimal rate { get; set; }
+        public decimal Rate { get; set; }
     }
 }
