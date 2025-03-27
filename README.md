@@ -89,15 +89,6 @@
   - ≤ 6 months left → 🟡 YELLOW
   - Otherwise → normal
 
----
-
-## Final Result:
-You've built a fully working, extendable **console app** that:
-- Tracks assets by brand, model, and office
-- Highlights upcoming replacements
-- Converts prices into local currencies
-- Supports dynamic data input
-- Uses **clean architecture** with separation of concerns
 
 ---
  Below is a concise summary of the logic and flow of the application:
