@@ -6,26 +6,46 @@ using AssetTrackerApp.ConsoleUI;
 
 namespace AssetTrackerApp
 {
+    /// <summary>
+    /// Entry point of the application.
+    /// Initializes core data and starts the console UI.
+    /// </summary>
     internal class Program
     {
         static void Main(string[] args)
         {
-            // Initialize currency data
-            CurrencyConverter.Update();
+            // Attempt to fetch latest exchange rates
+            try
+            {
+                var latestRates = CurrencyConverter.UpdateRates();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("✅  Currency rates successfully updated.");
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("❌ Failed to update currency rates:");
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.ResetColor();
+            }
 
-            // Create offices
+            // Create default office instances
             var usa = new Office("USA", Currency.USD);
             var sweden = new Office("Sweden", Currency.SEK);
             var germany = new Office("Germany", Currency.EUR);
 
-            // Initialize tracker
-            var tracker = new AssetTrackerService();
+            // Initialize in-memory asset repository
+            var assetRepository = new AssetRepository();
 
-            // Load sample data
-            SeedData.AddDefaultAssets(tracker, usa, sweden, germany);
+            // Load sample seed data
+            SeedData.AddDefaultAssets(assetRepository, usa, sweden, germany);
 
-            // Start the console menu
-            Menu.Start(tracker);
+            // Launch main console menu using injected input/output for testability.
+            // In production, this behaves the same as before.
+            Menu.Start(assetRepository, Console.In, Console.Out);
         }
     }
 }
