@@ -6,11 +6,15 @@ using AssetTrackerApp.ConsoleUI;
 
 namespace AssetTrackerApp
 {
+    /// <summary>
+    /// Entry point of the application.
+    /// Initializes core data and starts the console UI.
+    /// </summary>
     internal class Program
     {
         static void Main(string[] args)
         {
-            // Attempt to fetch currency rates
+            // Attempt to fetch latest exchange rates
             try
             {
                 var latestRates = CurrencyConverter.UpdateRates();
@@ -28,18 +32,18 @@ namespace AssetTrackerApp
                 Console.ResetColor();
             }
 
-            // Create offices
+            // Create default office instances
             var usa = new Office("USA", Currency.USD);
             var sweden = new Office("Sweden", Currency.SEK);
             var germany = new Office("Germany", Currency.EUR);
 
-            // Initialize asses epository
+            // Initialize in-memory asset repository
             var assetRepository = new AssetRepository();
 
-            // Load sample data
+            // Load sample seed data
             SeedData.AddDefaultAssets(assetRepository, usa, sweden, germany);
 
-            // Start the console menu
+            // Launch main console menu
             Menu.Start(assetRepository);
         }
     }
