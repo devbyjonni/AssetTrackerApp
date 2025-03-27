@@ -6,71 +6,50 @@ using AssetTrackerApp.Models;
 
 namespace AssetTrackerApp.Services
 {
-    /// CurrencyConverter is responsible for converting EUR to other currencies using exchange rates
-    /// from the European Central Bank (ECB). Rates are fetched and deserialized from XML once at startup.
+    /// <summary>
+    /// CurrencyConverter is responsible for converting EUR to other currencies
+    /// using exchange rates from the European Central Bank (ECB).
+    /// </summary>
     public static class CurrencyConverter
     {
-        // ECB endpoint for daily exchange rates in XML
         private static readonly string xmlUrl = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
 
-        // Holds the deserialized ECB data (top-level XML structure)
-        private static Envelope exchangeRates = Update();
+        private static Envelope exchangeRates = new Envelope();
 
+        /// <summary>
         /// Converts a value in EUR to the specified target currency.
-        /// If conversion fails, the original EUR value is returned.
+        /// </summary>
         public static decimal ConvertTo(decimal value, Currency targetCurrency, out decimal convertedValue)
         {
-            convertedValue = value;
+            var rate = (targetCurrency == Currency.EUR)
+                ? 1m
+                : GetRateForCurrency(targetCurrency);
 
-            if (targetCurrency == Currency.EUR)
-                return convertedValue;
-
-            try
-            {
-                var rate = GetRateForCurrency(targetCurrency);
-                convertedValue = value * rate;
-                return convertedValue;
-            }
-            catch
-            {
-                // Fallback: return original value if conversion fails
-                return value;
-            }
+            convertedValue = value * rate;
+            return convertedValue;
         }
 
-        /// Fetches and deserializes the latest ECB exchange rates from XML.
-        public static Envelope Update()
+        /// <summary>
+        /// Loads the latest exchange rates from the ECB. Throws if deserialization fails.
+        /// </summary>
+        public static Envelope UpdateRates()
         {
-            try
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(Envelope));
-                using var reader = XmlReader.Create(xmlUrl);
-                var result = serializer.Deserialize(reader) as Envelope;
+            XmlSerializer serializer = new XmlSerializer(typeof(Envelope));
+            using var reader = XmlReader.Create(xmlUrl);
+            var updatedRates = (Envelope?)serializer.Deserialize(reader);
 
-                if (result == null)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("❌ Failed to deserialize currency data.");
-                    Console.ResetColor();
-                    return new Envelope(); // fallback
-                }
-
-                exchangeRates = result;
-                return exchangeRates;
-            }
-            catch (Exception ex)
+            if (updatedRates == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("❌ Failed to fetch currency rates:");
-                Console.WriteLine(ex.Message);
-                Console.ResetColor();
-                return new Envelope(); // fallback
+                throw new InvalidOperationException("Deserialization returned null.");
             }
+
+            exchangeRates = updatedRates;
+            return exchangeRates;
         }
 
-        /// Finds the exchange rate for the given currency in the ECB data.
-        /// If the rate is not found, a warning is printed and 1 is returned, 
-        /// which means the original EUR value will be used without conversion.
+        /// <summary>
+        /// Gets the exchange rate for a target currency. Returns 1 if not found.
+        /// </summary>
         private static decimal GetRateForCurrency(Currency currency)
         {
             var cubeList = exchangeRates?.CubeContainer?.CubeDataSet?.Rates;
@@ -94,21 +73,6 @@ namespace AssetTrackerApp.Services
             }
 
             return match.Rate;
-        }
-
-        public static Envelope UpdateRates()
-        {
-            XmlSerializer serializer = new XmlSerializer(typeof(Envelope));
-            using var reader = XmlReader.Create(xmlUrl);
-            var updatedRates = (Envelope?)serializer.Deserialize(reader);
-
-            if (updatedRates == null)
-            {
-                throw new InvalidOperationException("Deserialization returned null.");
-            }
-
-            exchangeRates = updatedRates;
-            return exchangeRates;
         }
     }
 }
