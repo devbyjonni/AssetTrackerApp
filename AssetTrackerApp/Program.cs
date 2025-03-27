@@ -19,7 +19,7 @@ namespace AssetTrackerApp
             {
                 var latestRates = CurrencyConverter.UpdateRates();
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("✅ Currency rates successfully updated.");
+                Console.WriteLine("✅  Currency rates successfully updated.");
             }
             catch (Exception ex)
             {
@@ -43,8 +43,9 @@ namespace AssetTrackerApp
             // Load sample seed data
             SeedData.AddDefaultAssets(assetRepository, usa, sweden, germany);
 
-            // Launch main console menu
-            Menu.Start(assetRepository);
+            // Launch main console menu using injected input/output for testability.
+            // In production, this behaves the same as before.
+            Menu.Start(assetRepository, Console.In, Console.Out);
         }
     }
 }

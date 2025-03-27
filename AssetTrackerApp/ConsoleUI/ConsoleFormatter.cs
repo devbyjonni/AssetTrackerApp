@@ -1,52 +1,76 @@
 using AssetTrackerApp.Models;
 using AssetTrackerApp.Services;
 using System;
+using System.IO;
 
 namespace AssetTrackerApp.ConsoleUI
 {
-    /// <summary>
-    /// Formats and prints asset information to the console, including local currency conversion and age-based coloring.
-    /// </summary>
     public static class ConsoleFormatter
     {
-        // Expected lifespan of an asset in months (used to calculate color thresholds)
         private const int LifeSpanInMonths = 36;
 
         /// <summary>
-        /// Prints a single asset to the console with color-coding based on remaining lifespan.
+        /// Prints the details of an asset using the provided TextWriter. 
+        /// If no writer is provided, it defaults to Console.Out, allowing for both production output and easy testing.
         /// </summary>
-        /// <param name="asset">The asset to print.</param>
-        public static void PrintAsset(Asset asset)
+        public static void PrintAsset(Asset asset, TextWriter? writer = null)
         {
+            // Ensure we have a valid output stream.
+            // If 'writer' is null, default to Console.Out so we can safely write output.
+            writer ??= Console.Out;
+
             if (asset == null)
             {
-                Console.WriteLine("⚠️  Cannot print null asset.");
+                writer.WriteLine("⚠️  Cannot print null asset.");
                 return;
             }
 
-            // Calculate asset age and remaining lifespan
-            int ageInMonths = (int)((DateTime.Now - asset.PurchaseDate).TotalDays / 30.4375); // Average month length
+            // Calculate age
+            int ageInMonths = (int)((DateTime.Now - asset.PurchaseDate).TotalDays / 30.4375);
             int monthsLeft = LifeSpanInMonths - ageInMonths;
 
-            // Convert price to local currency
+            // Convert price
             decimal localPrice = CurrencyConverter.ConvertTo(asset.Price.Amount, asset.Office.LocalCurrency, out decimal convertedAmount);
             string priceDisplay = $"{Math.Round(convertedAmount, 2)} {asset.Office.LocalCurrency}";
 
-            // Apply color based on remaining lifespan
-            if (monthsLeft <= 3)
-                Console.ForegroundColor = ConsoleColor.Red;
-            else if (monthsLeft <= 6)
-                Console.ForegroundColor = ConsoleColor.Yellow;
-            else
+            // If writing to console, apply color
+            if (writer == Console.Out)
+            {
+                if (monthsLeft <= 3) Console.ForegroundColor = ConsoleColor.Red;
+                else if (monthsLeft <= 6) Console.ForegroundColor = ConsoleColor.Yellow;
+            }
+
+            // Build the line with all left-aligned fields.
+            // Matches the header widths:
+            //  Office:10, Type:10, Brand:10, Model:15, Amount:8, Curr:4, Converted:12, Date:10
+            string format = $"{{0,-{AssetTableHeader.OfficeWidth}}} " +
+                $"{{1,-{AssetTableHeader.TypeWidth}}} " +
+                $"{{2,-{AssetTableHeader.BrandWidth}}} " +
+                $"{{3,-{AssetTableHeader.ModelWidth}}} " +
+                $"{{4,-{AssetTableHeader.AmountWidth}}} " +
+                $"{{5,-{AssetTableHeader.CurrWidth}}} " +
+                $"{{6,-{AssetTableHeader.ConvertedWidth}}} " +
+                $"{{7,-{AssetTableHeader.DateWidth}:yyyy-MM-dd}}";
+
+            string formattedLine = string.Format(
+                format,
+                asset.Office.Name,
+                asset.Type,
+                asset.Brand,
+                asset.Model,
+                Math.Round(asset.Price.Amount, 2),
+                asset.Price.Currency,
+                priceDisplay,
+                asset.PurchaseDate
+            );
+
+            writer.WriteLine(formattedLine);
+
+            // Reset color if writing to console
+            if (writer == Console.Out)
+            {
                 Console.ResetColor();
-
-            // Print formatted output
-            Console.WriteLine($"{asset.Office.Name,-10} {asset.Type,-10} {asset.Brand,-10} {asset.Model,-15} " +
-                              $"{asset.Price.Amount,8} {asset.Price.Currency,-4} " +
-                              $"→ {priceDisplay,-12} " +
-                              $"{asset.PurchaseDate:yyyy-MM-dd}");
-
-            Console.ResetColor();
+            }
         }
     }
 }

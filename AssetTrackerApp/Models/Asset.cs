@@ -19,7 +19,6 @@ namespace AssetTrackerApp.Models
         // I don't want to allow nulls (so not using string?),
         // and I can't initialize it here in the base class — this is the cleanest option.
 
-
         /// <summary>
         /// The brand or manufacturer of the asset.
         /// </summary>

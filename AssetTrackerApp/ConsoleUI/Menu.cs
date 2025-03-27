@@ -3,6 +3,8 @@ using AssetTrackerApp.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Globalization;
 
 namespace AssetTrackerApp.ConsoleUI
 {
@@ -12,165 +14,176 @@ namespace AssetTrackerApp.ConsoleUI
     public static class Menu
     {
         /// <summary>
-        /// Starts the main menu loop for managing assets.
+        /// Starts the main menu loop using injected input and output streams.
         /// </summary>
         /// <param name="assetRepository">Asset repository instance used for data operations.</param>
-        public static void Start(AssetRepository assetRepository)
+        /// <param name="input">TextReader for reading user input.</param>
+        /// <param name="output">TextWriter for writing output.</param>
+        public static void Start(AssetRepository assetRepository, TextReader input, TextWriter output)
         {
-            // We'll keep office references here for re-use
+            // Keep office references for reuse.
             var offices = assetRepository.GetAllAssets()
                                          .Select(a => a.Office)
                                          .Distinct()
                                          .ToList();
 
-            while (true)
+            bool exitRequested = false;
+            while (!exitRequested)
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("📦 Asset Tracker");
-                Console.ResetColor();
+                output.WriteLine("Asset Tracker");
+                output.WriteLine();
+                output.WriteLine("Choose an option:");
+                output.WriteLine("1. Show all assets sorted by Type & Purchase Date");
+                output.WriteLine("2. Show all assets sorted by Office & Purchase Date");
+                output.WriteLine("3. Add new asset");
+                output.WriteLine("0. Exit");
+                output.Write("Enter choice: ");
 
-                Console.WriteLine("\nChoose an option:");
-                Console.WriteLine("1. Show all assets sorted by Type & Purchase Date");
-                Console.WriteLine("2. Show all assets sorted by Office & Purchase Date");
-                Console.WriteLine("3. Add new asset");
-                Console.WriteLine("0. Exit");
-
-                Console.Write("\nEnter choice: ");
-                string input = Console.ReadLine()?.Trim() ?? "";
-
-                switch (input)
+                string inputLine = input.ReadLine()?.Trim() ?? "";
+                switch (inputLine)
                 {
                     case "1":
-                        // View by Type → Date
-                        ShowAssetsByType(assetRepository);
+                        ShowAssetsByType(assetRepository, input, output);
                         break;
-
                     case "2":
-                        // View by Office → Date
-                        ShowAssetsByOffice(assetRepository);
+                        ShowAssetsByOffice(assetRepository, input, output);
                         break;
-
                     case "3":
-                        // Add new asset
-                        CreateAsset(assetRepository, offices);
+                        CreateAsset(assetRepository, offices, input, output);
                         break;
-
                     case "0":
-                        // Exit app
-                        Environment.Exit(0);
+                        exitRequested = true;
                         break;
-
                     default:
-                        Console.WriteLine("Invalid choice. Press Enter to try again...");
-                        Console.ReadLine();
+                        output.WriteLine("Invalid choice. Press Enter to try again...");
+                        input.ReadLine();
                         break;
                 }
             }
         }
 
         /// <summary>
-        /// Displays all assets sorted by type and purchase date.
+        /// Displays assets sorted by type and purchase date, including a header row.
         /// </summary>
-        private static void ShowAssetsByType(AssetRepository assetRepository)
+        private static void ShowAssetsByType(AssetRepository assetRepository, TextReader input, TextWriter output)
         {
-            Console.Clear();
-            Console.WriteLine("Assets sorted by Type and Purchase Date:\n");
+            output.WriteLine();
+            output.WriteLine("Assets sorted by Type and Purchase Date:");
+            output.WriteLine();
+
+            // Print column headers.
+            AssetTableHeader.PrintHeader(output);
 
             var assets = assetRepository.GetSortedAssetsByTypeAndDate();
-
             foreach (var asset in assets)
             {
-                ConsoleFormatter.PrintAsset(asset);
+                // Use the ConsoleFormatter to print the asset with proper formatting.
+                ConsoleFormatter.PrintAsset(asset, output);
             }
 
-            Console.WriteLine("\nPress Enter to return to menu...");
-            Console.ReadLine();
+            output.WriteLine();
+            output.WriteLine("Press Enter to return to menu...");
+            input.ReadLine();
         }
 
         /// <summary>
-        /// Displays all assets sorted by office and purchase date.
+        /// Displays assets sorted by office and purchase date, including a header row.
         /// </summary>
-        private static void ShowAssetsByOffice(AssetRepository assetRepository)
+        private static void ShowAssetsByOffice(AssetRepository assetRepository, TextReader input, TextWriter output)
         {
-            Console.Clear();
-            Console.WriteLine("Assets sorted by Office and Purchase Date:\n");
+            output.WriteLine();
+            output.WriteLine("Assets sorted by Office and Purchase Date:");
+            output.WriteLine();
+
+            // Print column headers.
+            AssetTableHeader.PrintHeader(output);
 
             var assets = assetRepository.GetSortedAssetsByOfficeAndDate();
-
             foreach (var asset in assets)
             {
-                ConsoleFormatter.PrintAsset(asset);
+                // Use the ConsoleFormatter to print the asset with proper formatting.
+                ConsoleFormatter.PrintAsset(asset, output);
             }
 
-            Console.WriteLine("\nPress Enter to return to menu...");
-            Console.ReadLine();
+            output.WriteLine();
+            output.WriteLine("Press Enter to return to menu...");
+            input.ReadLine();
         }
 
         /// <summary>
-        /// Collects asset input from the user and adds it to the repository.
+        /// Collects asset input from the user and adds a new asset to the repository.
         /// </summary>
-        private static void CreateAsset(AssetRepository assetRepository, List<Office> offices)
+        private static void CreateAsset(AssetRepository assetRepository, List<Office> offices, TextReader input, TextWriter output)
         {
-            Console.Clear();
-            Console.WriteLine("Add New Asset\n");
+            output.WriteLine("Add New Asset");
 
             // --- Type ---
-            Console.Write("Type (Computer/Smartphone): ");
-            string? type = Console.ReadLine()?.Trim().ToLower();
+            output.Write("Type (Computer/Smartphone): ");
+            string? type = input.ReadLine()?.Trim().ToLower();
             if (string.IsNullOrWhiteSpace(type) || (type != "computer" && type != "smartphone"))
             {
-                Console.WriteLine("⚠️ Invalid asset type.");
+                output.WriteLine("Invalid asset type.");
                 return;
             }
 
             // --- Brand ---
-            Console.Write("Brand: ");
-            string? brand = Console.ReadLine()?.Trim();
+            output.Write("Brand: ");
+            string? brand = input.ReadLine()?.Trim();
             if (string.IsNullOrWhiteSpace(brand))
             {
-                Console.WriteLine("⚠️ Brand is required.");
+                output.WriteLine("Brand is required.");
                 return;
             }
 
             // --- Model ---
-            Console.Write("Model: ");
-            string? model = Console.ReadLine()?.Trim();
+            output.Write("Model: ");
+            string? model = input.ReadLine()?.Trim();
             if (string.IsNullOrWhiteSpace(model))
             {
-                Console.WriteLine("⚠️ Model is required.");
+                output.WriteLine("Model is required.");
                 return;
             }
 
             // --- Price ---
-            Console.Write("Price amount: ");
-            if (!decimal.TryParse(Console.ReadLine(), out decimal amount) || amount <= 0)
+            output.Write("Price amount: ");
+            if (!decimal.TryParse(
+                    input.ReadLine(),
+                    NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
+                    out decimal amount) || amount <= 0)
             {
-                Console.WriteLine("⚠️ Invalid price amount.");
+                output.WriteLine("Invalid price amount.");
                 return;
             }
 
             // --- Currency ---
-            Console.Write("Currency (USD, EUR, SEK): ");
-            if (!Enum.TryParse(Console.ReadLine(), true, out Currency currency))
+            output.Write("Currency (USD, EUR, SEK): ");
+            string? currencyInput = input.ReadLine()?.Trim();
+            if (!Enum.TryParse(currencyInput, true, out Currency currency))
             {
-                Console.WriteLine("⚠️ Invalid currency.");
+                output.WriteLine("Invalid currency.");
                 return;
             }
 
             // --- Purchase Date ---
-            Console.Write("Purchase date (yyyy-mm-dd): ");
-            if (!DateTime.TryParse(Console.ReadLine(), out DateTime purchaseDate))
+            output.Write("Purchase date (yyyy-MM-dd): ");
+            if (!DateTime.TryParseExact(
+                    input.ReadLine(),
+                    "yyyy-MM-dd",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out DateTime purchaseDate))
             {
-                Console.WriteLine("⚠️ Invalid date format.");
+                output.WriteLine("Invalid date format.");
                 return;
             }
 
             // --- Office ---
-            Console.Write("Office (USA, Sweden, Germany): ");
-            string? officeName = Console.ReadLine()?.Trim();
+            output.Write("Office (USA, Sweden, Germany): ");
+            string? officeName = input.ReadLine()?.Trim();
             if (string.IsNullOrWhiteSpace(officeName))
             {
-                Console.WriteLine("⚠️ Office name is required.");
+                output.WriteLine("Office name is required.");
                 return;
             }
 
@@ -180,26 +193,18 @@ namespace AssetTrackerApp.ConsoleUI
                 offices.Add(office);
             }
 
-            // --- Create Price ---
-            var price = new Price(amount, currency);
-
-            // --- Create Asset ---
+            var priceObj = new Price(amount, currency);
             Asset asset = type switch
             {
-                "computer" => new Computer(price, purchaseDate, brand, model, office),
-                "smartphone" => new Smartphone(price, purchaseDate, brand, model, office),
-                _ => null! // won't be reached due to earlier validation
+                "computer" => new Computer(priceObj, purchaseDate, brand, model, office),
+                "smartphone" => new Smartphone(priceObj, purchaseDate, brand, model, office),
+                _ => null! // Should never occur due to validation.
             };
 
-            // --- Add to Repository ---
             assetRepository.AddAsset(asset);
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\n✅ Asset added successfully!");
-            Console.ResetColor();
-
-            Console.WriteLine("\nPress Enter to return to menu...");
-            Console.ReadLine();
+            output.WriteLine("Asset added successfully!");
+            output.WriteLine("Press Enter to return to menu...");
+            input.ReadLine();
         }
     }
 }
