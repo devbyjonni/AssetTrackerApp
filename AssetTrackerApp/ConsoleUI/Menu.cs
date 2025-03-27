@@ -1,22 +1,30 @@
 using AssetTrackerApp.Models;
 using AssetTrackerApp.Data;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AssetTrackerApp.ConsoleUI
 {
+    /// <summary>
+    /// Entry point for the console UI. Handles main menu navigation and asset creation.
+    /// </summary>
     public static class Menu
     {
-        public static void Start(AssetRepository tracker)
+        /// <summary>
+        /// Starts the main menu loop for managing assets.
+        /// </summary>
+        /// <param name="assetRepository">Asset repository instance used for data operations.</param>
+        public static void Start(AssetRepository assetRepository)
         {
-            // 🆕 We'll keep office references here
-            var offices = tracker.GetAllAssets()
-                                 .Select(a => a.Office)
-                                 .Distinct()
-                                 .ToList();
+            // We'll keep office references here for re-use
+            var offices = assetRepository.GetAllAssets()
+                                         .Select(a => a.Office)
+                                         .Distinct()
+                                         .ToList();
 
             while (true)
             {
-                //Console.Clear();
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("📦 Asset Tracker");
                 Console.ResetColor();
@@ -33,17 +41,25 @@ namespace AssetTrackerApp.ConsoleUI
                 switch (input)
                 {
                     case "1":
-                        ShowAssetsByType(tracker);
+                        // View by Type → Date
+                        ShowAssetsByType(assetRepository);
                         break;
+
                     case "2":
-                        ShowAssetsByOffice(tracker);
+                        // View by Office → Date
+                        ShowAssetsByOffice(assetRepository);
                         break;
+
                     case "3":
-                        CreateAsset(tracker, offices);
+                        // Add new asset
+                        CreateAsset(assetRepository, offices);
                         break;
+
                     case "0":
+                        // Exit app
                         Environment.Exit(0);
                         break;
+
                     default:
                         Console.WriteLine("Invalid choice. Press Enter to try again...");
                         Console.ReadLine();
@@ -52,12 +68,15 @@ namespace AssetTrackerApp.ConsoleUI
             }
         }
 
-        private static void ShowAssetsByType(AssetRepository tracker)
+        /// <summary>
+        /// Displays all assets sorted by type and purchase date.
+        /// </summary>
+        private static void ShowAssetsByType(AssetRepository assetRepository)
         {
             Console.Clear();
             Console.WriteLine("Assets sorted by Type and Purchase Date:\n");
 
-            var assets = tracker.GetSortedAssetsByTypeAndDate();
+            var assets = assetRepository.GetSortedAssetsByTypeAndDate();
 
             foreach (var asset in assets)
             {
@@ -68,12 +87,15 @@ namespace AssetTrackerApp.ConsoleUI
             Console.ReadLine();
         }
 
-        private static void ShowAssetsByOffice(AssetRepository tracker)
+        /// <summary>
+        /// Displays all assets sorted by office and purchase date.
+        /// </summary>
+        private static void ShowAssetsByOffice(AssetRepository assetRepository)
         {
             Console.Clear();
             Console.WriteLine("Assets sorted by Office and Purchase Date:\n");
 
-            var assets = tracker.GetSortedAssetsByOfficeAndDate();
+            var assets = assetRepository.GetSortedAssetsByOfficeAndDate();
 
             foreach (var asset in assets)
             {
@@ -84,7 +106,10 @@ namespace AssetTrackerApp.ConsoleUI
             Console.ReadLine();
         }
 
-        private static void CreateAsset(AssetRepository tracker, List<Office> offices)
+        /// <summary>
+        /// Collects asset input from the user and adds it to the repository.
+        /// </summary>
+        private static void CreateAsset(AssetRepository assetRepository, List<Office> offices)
         {
             Console.Clear();
             Console.WriteLine("Add New Asset\n");
@@ -166,8 +191,8 @@ namespace AssetTrackerApp.ConsoleUI
                 _ => null! // won't be reached due to earlier validation
             };
 
-            // --- Add to Tracker ---
-            tracker.AddAsset(asset);
+            // --- Add to Repository ---
+            assetRepository.AddAsset(asset);
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("\n✅ Asset added successfully!");
@@ -176,7 +201,5 @@ namespace AssetTrackerApp.ConsoleUI
             Console.WriteLine("\nPress Enter to return to menu...");
             Console.ReadLine();
         }
-
-
     }
 }
