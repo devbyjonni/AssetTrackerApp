@@ -13,8 +13,8 @@ namespace AssetTrackerApp.Data
             repository.AddAsset(new Smartphone(new Price(400, Currency.USD), DateTime.Now.AddMonths(-26), "Motorola", "X2", usa));
             repository.AddAsset(new Smartphone(new Price(4500, Currency.SEK), DateTime.Now.AddMonths(-30), "Samsung", "Galaxy 10", sweden));
             repository.AddAsset(new Smartphone(new Price(4500, Currency.SEK), DateTime.Now.AddMonths(-29), "Samsung", "Galaxy 10", sweden));
-            repository.AddAsset(new Smartphone(new Price(3000, Currency.SEK), DateTime.Now.AddMonths(-32), "Sony", "XPeria 7", sweden));
-            repository.AddAsset(new Smartphone(new Price(3000, Currency.SEK), DateTime.Now.AddMonths(-31), "Sony", "XPeria 7", sweden));
+            repository.AddAsset(new Smartphone(new Price(3000, Currency.SEK), DateTime.Now.AddMonths(-32), "Sony", "Xperia 7", sweden));
+            repository.AddAsset(new Smartphone(new Price(3000, Currency.SEK), DateTime.Now.AddMonths(-31), "Sony", "Xperia 7", sweden));
             repository.AddAsset(new Smartphone(new Price(220, Currency.EUR), DateTime.Now.AddMonths(-24), "Siemens", "Brick", germany));
 
             repository.AddAsset(new Computer(new Price(100, Currency.USD), DateTime.Now.AddMonths(-38), "Dell", "Desktop 900", usa));
