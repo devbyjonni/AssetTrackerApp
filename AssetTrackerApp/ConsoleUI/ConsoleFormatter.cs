@@ -29,8 +29,12 @@ namespace AssetTrackerApp.ConsoleUI
             int ageInMonths = (int)((DateTime.Now - asset.PurchaseDate).TotalDays / 30.4375);
             int monthsLeft = LifeSpanInMonths - ageInMonths;
 
-            // Convert price
-            decimal localPrice = CurrencyConverter.ConvertTo(asset.Price.Amount, asset.Office.LocalCurrency, out decimal convertedAmount);
+            // Convert price from the asset's currency to the office's local currency
+            decimal localPrice = CurrencyConverter.Convert(
+                asset.Price.Amount,
+                asset.Price.Currency,
+                asset.Office.LocalCurrency,
+                out decimal convertedAmount);
             string priceDisplay = $"{Math.Round(convertedAmount, 2)} {asset.Office.LocalCurrency}";
 
             // If writing to console, apply color

@@ -187,9 +187,19 @@ namespace AssetTrackerApp.ConsoleUI
                 return;
             }
 
-            var office = new Office(officeName, currency);
-            if (!offices.Any(o => o.Name.Equals(office.Name, StringComparison.OrdinalIgnoreCase)))
+            // Reuse existing office if available; otherwise create a new one and prompt for its currency
+            var office = offices.FirstOrDefault(o => o.Name.Equals(officeName, StringComparison.OrdinalIgnoreCase));
+            if (office == null)
             {
+                output.Write("Office currency (USD, EUR, SEK): ");
+                string? officeCurrencyInput = input.ReadLine()?.Trim();
+                if (!Enum.TryParse(officeCurrencyInput, true, out Currency officeCurrency))
+                {
+                    output.WriteLine("Invalid currency.");
+                    return;
+                }
+
+                office = new Office(officeName, officeCurrency);
                 offices.Add(office);
             }
 
