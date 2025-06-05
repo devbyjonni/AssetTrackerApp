@@ -7,7 +7,7 @@
 - Kicks off the app by:
   - Fetching **currency exchange rates** from the ECB
   - Creating three **offices** (`USA`, `Sweden`, `Germany`)
-  - Initializing the **AssetTrackerService**
+  - Initializing the **AssetRepository**
   - Loading **sample assets** via `SeedData`
   - Starting the interactive **console menu** via `Menu.Start()`
 
@@ -25,13 +25,13 @@
 
 ---
 
-### **3. AssetTrackerService.cs**
+### **3. AssetRepository.cs**
 
-- Acts as your in-memory "database" of assets.
-- Can:
+- Acts as the in-memory store for assets.
+- Provides methods to:
   - Add new assets
-  - Return all assets
-  - Return sorted lists by:
+  - Retrieve all assets
+  - Get sorted lists by:
     - Type & Purchase Date
     - Office & Purchase Date
 
