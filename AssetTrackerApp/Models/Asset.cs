@@ -45,6 +45,11 @@ namespace AssetTrackerApp.Models
         public Office Office { get; set; }
 
         /// <summary>
+        /// Calculates the age of the asset in whole months.
+        /// </summary>
+        public int AgeInMonths => (int)((DateTime.Now - PurchaseDate).TotalDays / 30.4375);
+
+        /// <summary>
         /// Constructs an asset with common properties.
         /// </summary>
         protected Asset(string brand, string model, DateTime purchaseDate, Price price, Office office)

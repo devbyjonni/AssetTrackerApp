@@ -19,7 +19,8 @@ namespace AssetTrackerApp.ConsoleUI
                 return "⚠️  Cannot print null asset.";
             }
 
-            // Calculate age (unused result kept for potential future logic)
+            // Calculate age using the shared Asset helper. The result
+            // is used by PrintAsset when determining console colors.
 
             // Convert price from the asset's currency to the office's local currency
             CurrencyConverter.Convert(
@@ -69,8 +70,7 @@ namespace AssetTrackerApp.ConsoleUI
             }
 
             // Calculate age to determine color
-            int ageInMonths = (int)((DateTime.Now - asset.PurchaseDate).TotalDays / 30.4375);
-            int monthsLeft = LifeSpanInMonths - ageInMonths;
+            int monthsLeft = LifeSpanInMonths - asset.AgeInMonths;
 
             // If writing to console, apply color
             if (writer == Console.Out)
