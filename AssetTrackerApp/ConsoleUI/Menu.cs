@@ -19,7 +19,7 @@ namespace AssetTrackerApp.ConsoleUI
         /// <param name="assetRepository">Asset repository instance used for data operations.</param>
         /// <param name="input">TextReader for reading user input.</param>
         /// <param name="output">TextWriter for writing output.</param>
-        public static void Start(AssetRepository assetRepository, TextReader input, TextWriter output)
+        public static void Start(IAssetRepository assetRepository, TextReader input, TextWriter output)
         {
             // Keep office references for reuse.
             var offices = assetRepository.GetAllAssets()
@@ -65,7 +65,7 @@ namespace AssetTrackerApp.ConsoleUI
         /// <summary>
         /// Displays assets sorted by type and purchase date, including a header row.
         /// </summary>
-        private static void ShowAssetsByType(AssetRepository assetRepository, TextReader input, TextWriter output)
+        private static void ShowAssetsByType(IAssetRepository assetRepository, TextReader input, TextWriter output)
         {
             output.WriteLine();
             output.WriteLine("Assets sorted by Type and Purchase Date:");
@@ -77,8 +77,15 @@ namespace AssetTrackerApp.ConsoleUI
             var assets = assetRepository.GetSortedAssetsByTypeAndDate();
             foreach (var asset in assets)
             {
-                // Use the ConsoleFormatter to print the asset with proper formatting.
-                ConsoleFormatter.PrintAsset(asset, output);
+                if (output == Console.Out)
+                {
+                    ConsoleFormatter.PrintAsset(asset, output);
+                }
+                else
+                {
+                    string line = ConsoleFormatter.FormatAsset(asset);
+                    output.WriteLine(line);
+                }
             }
 
             output.WriteLine();
@@ -89,7 +96,7 @@ namespace AssetTrackerApp.ConsoleUI
         /// <summary>
         /// Displays assets sorted by office and purchase date, including a header row.
         /// </summary>
-        private static void ShowAssetsByOffice(AssetRepository assetRepository, TextReader input, TextWriter output)
+        private static void ShowAssetsByOffice(IAssetRepository assetRepository, TextReader input, TextWriter output)
         {
             output.WriteLine();
             output.WriteLine("Assets sorted by Office and Purchase Date:");
@@ -101,8 +108,15 @@ namespace AssetTrackerApp.ConsoleUI
             var assets = assetRepository.GetSortedAssetsByOfficeAndDate();
             foreach (var asset in assets)
             {
-                // Use the ConsoleFormatter to print the asset with proper formatting.
-                ConsoleFormatter.PrintAsset(asset, output);
+                if (output == Console.Out)
+                {
+                    ConsoleFormatter.PrintAsset(asset, output);
+                }
+                else
+                {
+                    string line = ConsoleFormatter.FormatAsset(asset);
+                    output.WriteLine(line);
+                }
             }
 
             output.WriteLine();
@@ -113,7 +127,7 @@ namespace AssetTrackerApp.ConsoleUI
         /// <summary>
         /// Collects asset input from the user and adds a new asset to the repository.
         /// </summary>
-        private static void CreateAsset(AssetRepository assetRepository, List<Office> offices, TextReader input, TextWriter output)
+        private static void CreateAsset(IAssetRepository assetRepository, List<Office> offices, TextReader input, TextWriter output)
         {
             output.WriteLine("Add New Asset");
 

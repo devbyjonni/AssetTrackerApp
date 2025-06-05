@@ -10,7 +10,7 @@ namespace AssetTrackerApp.Data
     /// Provides basic operations such as adding assets and retrieving sorted views
     /// by type or office location.
     /// </summary>
-    public class AssetRepository
+    public class AssetRepository : IAssetRepository
     {
         private readonly List<Asset> _assets = new();
 

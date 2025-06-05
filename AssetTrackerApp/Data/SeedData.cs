@@ -6,7 +6,7 @@ namespace AssetTrackerApp.Data
 {
     public static class SeedData
     {
-        public static void AddDefaultAssets(AssetRepository repository, Office usa, Office sweden, Office germany)
+        public static void AddDefaultAssets(IAssetRepository repository, Office usa, Office sweden, Office germany)
         {
             repository.AddAsset(new Smartphone(new Price(200, Currency.USD), DateTime.Now.AddMonths(-32), "Motorola", "X3", usa));
             repository.AddAsset(new Smartphone(new Price(400, Currency.USD), DateTime.Now.AddMonths(-31), "Motorola", "X3", usa));
