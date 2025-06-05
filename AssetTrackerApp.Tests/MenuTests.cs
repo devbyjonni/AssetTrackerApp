@@ -94,6 +94,7 @@ namespace AssetTrackerApp.Tests
             // Currency: "USD"
             // Purchase date: "2025-03-27"
             // Office: "TestOffice"
+            // Office currency supplied as "USD" since the office is new
             // Extra newline for the "Press Enter to return to menu..." prompt,
             // then "0" to exit, with an extra newline.
             string inputString =
@@ -105,6 +106,7 @@ namespace AssetTrackerApp.Tests
                 "USD\n" +
                 "2025-03-27\n" +
                 "TestOffice\n" +
+                "USD\n" +
                 "\n" +
                 "0\n\n";
             var input = new StringReader(inputString);
