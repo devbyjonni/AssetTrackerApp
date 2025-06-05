@@ -38,18 +38,35 @@ namespace AssetTrackerApp.Tests
             var usa = new Office("USA", Currency.USD);
             var repository = new AssetRepository();
             var price = new Price(100, Currency.USD);
-            var computer = new Computer(price, new DateTime(2020, 1, 1), "Dell", "Optiplex", usa);
-            var smartphone = new Smartphone(price, new DateTime(2021, 1, 1), "Samsung", "Galaxy", usa);
+            var oldComputer = new Computer(price, new DateTime(2019, 1, 1), "Dell", "Optiplex", usa);
+            var newComputer = new Computer(price, new DateTime(2020, 1, 1), "Dell", "Optiplex", usa);
 
-            repository.AddAsset(smartphone);
-            repository.AddAsset(computer);
+            var oldPhone = new Smartphone(price, new DateTime(2021, 1, 1), "Samsung", "Galaxy", usa);
+            var newPhone = new Smartphone(price, new DateTime(2022, 1, 1), "Samsung", "Galaxy", usa);
+
+            // Add in unsorted order to verify sorting logic
+            repository.AddAsset(newPhone);
+            repository.AddAsset(newComputer);
+            repository.AddAsset(oldComputer);
+            repository.AddAsset(oldPhone);
 
             // Act
             var sortedAssets = repository.GetSortedAssetsByTypeAndDate();
 
-            // Assert: "Computer" comes before "Smartphone" alphabetically.
+            // Assert: first by type then by purchase date within each type
+            Assert.Equal(4, sortedAssets.Count);
+
             Assert.Equal("Computer", sortedAssets[0].Type);
-            Assert.Equal("Smartphone", sortedAssets[1].Type);
+            Assert.Equal(new DateTime(2019, 1, 1), sortedAssets[0].PurchaseDate);
+
+            Assert.Equal("Computer", sortedAssets[1].Type);
+            Assert.Equal(new DateTime(2020, 1, 1), sortedAssets[1].PurchaseDate);
+
+            Assert.Equal("Smartphone", sortedAssets[2].Type);
+            Assert.Equal(new DateTime(2021, 1, 1), sortedAssets[2].PurchaseDate);
+
+            Assert.Equal("Smartphone", sortedAssets[3].Type);
+            Assert.Equal(new DateTime(2022, 1, 1), sortedAssets[3].PurchaseDate);
         }
 
         /// <summary>
