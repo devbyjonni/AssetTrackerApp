@@ -38,7 +38,7 @@ namespace AssetTrackerApp
             var germany = new Office("Germany", Currency.EUR);
 
             // Initialize in-memory asset repository
-            var assetRepository = new AssetRepository();
+            IAssetRepository assetRepository = new AssetRepository();
 
             // Load sample seed data
             SeedData.AddDefaultAssets(assetRepository, usa, sweden, germany);
