@@ -17,16 +17,38 @@ namespace AssetTrackerApp.Services
         private static Envelope exchangeRates = new Envelope();
 
         /// <summary>
-        /// Converts a value in EUR to the specified target currency.
+        /// Converts an amount between two currencies.
+        /// Internally converts via EUR since the ECB rates are EUR based.
+        /// </summary>
+        public static decimal Convert(decimal amount, Currency fromCurrency, Currency toCurrency, out decimal convertedValue)
+        {
+            // If currencies match no conversion is needed.
+            if (fromCurrency == toCurrency)
+            {
+                convertedValue = amount;
+                return convertedValue;
+            }
+
+            // Convert the source amount to EUR first.
+            decimal amountInEur = fromCurrency == Currency.EUR
+                ? amount
+                : amount / GetRateForCurrency(fromCurrency);
+
+            // Then convert EUR to the target currency.
+            decimal rateToTarget = toCurrency == Currency.EUR
+                ? 1m
+                : GetRateForCurrency(toCurrency);
+
+            convertedValue = amountInEur * rateToTarget;
+            return convertedValue;
+        }
+
+        /// <summary>
+        /// Backwards compatible wrapper for converting EUR to the specified target currency.
         /// </summary>
         public static decimal ConvertTo(decimal value, Currency targetCurrency, out decimal convertedValue)
         {
-            var rate = (targetCurrency == Currency.EUR)
-                ? 1m
-                : GetRateForCurrency(targetCurrency);
-
-            convertedValue = value * rate;
-            return convertedValue;
+            return Convert(value, Currency.EUR, targetCurrency, out convertedValue);
         }
 
         /// <summary>
