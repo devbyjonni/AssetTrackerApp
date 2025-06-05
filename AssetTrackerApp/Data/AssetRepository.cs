@@ -28,7 +28,7 @@ namespace AssetTrackerApp.Data
         /// </summary>
         public List<Asset> GetAllAssets()
         {
-            return _assets;
+            return new List<Asset>(_assets);
         }
 
         /// <summary>
