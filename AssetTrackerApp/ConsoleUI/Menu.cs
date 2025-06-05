@@ -31,6 +31,8 @@ namespace AssetTrackerApp.ConsoleUI
             while (!exitRequested)
             {
                 output.WriteLine("Asset Tracker");
+                int totalAssets = assetRepository.GetAllAssets().Count;
+                output.WriteLine($"Total assets: {totalAssets}");
                 output.WriteLine();
                 output.WriteLine("Choose an option:");
                 output.WriteLine("1. Show all assets sorted by Type & Purchase Date");
@@ -89,6 +91,7 @@ namespace AssetTrackerApp.ConsoleUI
             }
 
             output.WriteLine();
+            output.WriteLine($"Total assets: {assets.Count}");
             output.WriteLine("Press Enter to return to menu...");
             input.ReadLine();
         }
@@ -120,6 +123,7 @@ namespace AssetTrackerApp.ConsoleUI
             }
 
             output.WriteLine();
+            output.WriteLine($"Total assets: {assets.Count}");
             output.WriteLine("Press Enter to return to menu...");
             input.ReadLine();
         }
