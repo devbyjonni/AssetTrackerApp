@@ -187,19 +187,37 @@ namespace AssetTrackerApp.ConsoleUI
                 return;
             }
 
-            // Reuse existing office if available; otherwise create a new one and prompt for its currency
-            var office = offices.FirstOrDefault(o => o.Name.Equals(officeName, StringComparison.OrdinalIgnoreCase));
+            // Look up an existing office by name. If it doesn't exist, create a new
+            // one using the correct local currency (prompting the user when needed).
+            var office = offices.FirstOrDefault(o =>
+                o.Name.Equals(officeName, StringComparison.OrdinalIgnoreCase));
             if (office == null)
             {
-                output.Write("Office currency (USD, EUR, SEK): ");
-                string? officeCurrencyInput = input.ReadLine()?.Trim();
-                if (!Enum.TryParse(officeCurrencyInput, true, out Currency officeCurrency))
+                Currency localCurrency;
+                if (officeName.Equals("USA", StringComparison.OrdinalIgnoreCase))
                 {
-                    output.WriteLine("Invalid currency.");
-                    return;
+                    localCurrency = Currency.USD;
+                }
+                else if (officeName.Equals("Sweden", StringComparison.OrdinalIgnoreCase))
+                {
+                    localCurrency = Currency.SEK;
+                }
+                else if (officeName.Equals("Germany", StringComparison.OrdinalIgnoreCase))
+                {
+                    localCurrency = Currency.EUR;
+                }
+                else
+                {
+                    output.Write("Office currency (USD, EUR, SEK): ");
+                    string? officeCurrencyInput = input.ReadLine()?.Trim();
+                    if (!Enum.TryParse(officeCurrencyInput, true, out localCurrency))
+                    {
+                        output.WriteLine("Invalid currency.");
+                        return;
+                    }
                 }
 
-                office = new Office(officeName, officeCurrency);
+                office = new Office(officeName, localCurrency);
                 offices.Add(office);
             }
 
